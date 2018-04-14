@@ -909,11 +909,6 @@ var glossary = [
     }
   ];
 
-  
-
-
-
-
 // Interactive Glossary
 // Create an interactive glossary from the data found here. We want it to be searchable and filterable!
 
@@ -939,7 +934,7 @@ function render () {
         `
     },"");
     document.body.innerHTML += markup;
-}
+};
 
 
 // Second Step
@@ -950,9 +945,8 @@ function render () {
 
 
 
-function searchFunction(searchTerm) {
-  var searchInput = document.querySelector("#text");
-  var searchTerm = searchInput.value;
+function searchFunction (searchTerm) {
+  var searchTerm = document.querySelector("#text").value;
   var relevantItems = glossary.filter(function(item) {
     return ( 
     item.term === searchTerm ||
@@ -974,26 +968,64 @@ function searchFunction(searchTerm) {
     `
   },"");
   document.body.innerHTML += relevantItemsMarkup;
-}
+};
+
+var submitButton = document.querySelector("#submitButton");
+var searchTerm = document.querySelector("#text").value;
+if (searchTerm !== "") {
+  submitButton.addEventListener("click",render);
+} else {
+  submitButton.addEventListener("click",searchFunction);
+};
 
 
-
-var button = document.querySelector("#button");
-button.addEventListener("click",searchFunction);
-
-
-
-
-// var relevantItems = glossary.filter(function(item) {
-//   return item.term === searchTerm;
-// });
-
+var clearButton = document.querySelector("#clearButton");
 
 // Bonus
 // Make this happen whenever the user presses a key!
 
 // Third Step
 // Add filter functionality! At the top of the page, add a dropdown menu with all of the class names. When the user selects one of those classes, show all of the terms from that particular class.
+
+var filterDropdown = document.querySelector("#filterDropdown");
+
+var uniqueClasses = ["class 00","class 01","class 02","class 03","class 04","class 05","class 06","class 07","class 08","class 09","class 10","class 11","class 12","class 13","class 14","class 15","class 16","class 17","class 18","class 19"]
+
+var filterMarkup = uniqueClasses.reduce(function(total,item){
+  return total + `<option value=${item}>${item}</option>`
+},"");
+filterDropdown.innerHTML += filterMarkup;
+
+function filterFunction(event) {
+  var filterItems = glossary.filter(function(item) {
+    return item.class === event.target.value;
+  });
+  var filterItemsMarkup = filterItems.reduce(function(currentItem, item){
+    var allTags = item.tags;
+    var tagMarkup = allTags.reduce(function(currentHTML, tag) {
+        return currentHTML + `#${tag} `
+    },"");
+    return currentItem + `
+      <div class="item">
+        <h2>${item.term}</h2>
+        <h4>Class ${item.class}</h4>
+        <p>${item.definition}</p>
+        <p class="tags">${tagMarkup}</p>
+      </div>
+    `
+  },"");
+  document.body.innerHTML += filterItemsMarkup;
+}
+
+document.addEventListener('DOMContentLoaded',function() {
+  document.querySelector('select[name="filterDropdown"]').onchange=filterFunction;
+},false);
+
+
+// var relevantItems = glossary.filter(function(item) {
+//   return item.term === searchTerm;
+// });
+
 
 // Bonus
 // Make the search and filter functionality work together!
