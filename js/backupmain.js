@@ -909,92 +909,140 @@ var glossary = [
     }
   ];
 
-// // Interactive Glossary
-// // Create an interactive glossary from the data found here. We want it to be searchable and filterable!
+// Interactive Glossary
+// Create an interactive glossary from the data found here. We want it to be searchable and filterable!
 
-// // 1. Iterate through all of the data and for each item, generate some HTML from it.
+// Make this look good if you have time! You have complete creative control of this one!
 
-var submitButton = document.querySelector("button");
+var clearButton = document.querySelector("#clearButton");
 
-// // Second Step
-// // Add search functionality! Add an input at the top of the page and a button. When you click the button, show all related definitions (use whatever the user typed in to show relevant results).
+function clearAll () {
+  console.log("Clear all was run");
+}
+
+clearButton.addEventListener("click",clearAll);
 
 
-function search(searchInputValue) {
-  var searchInputValue = document.querySelector("input").value;
-  var glossaryReturned = glossary.filter(isTermReturned);
-  var glossaryMarkup = glossaryReturned.reduce(function(runningTotal,item) {
+// Steps
+// First Step
+// Iterate through all of the data and for each item, generate some HTML from it.
+
+
+function render () {
+    var markup = glossary.reduce(function(total,item){
+        var allTags = item.tags;
+        var tagMarkup = allTags.reduce(function(currentHTML, tag) {
+            return currentHTML + `#${tag} `
+        },"");
+        return total + `
+        <div class="item">
+            <h2>${item.term}</h2>
+            <h4>Class ${item.class}</h4>
+            <p>${item.definition}</p>
+            <p class="tags">${tagMarkup}</p>
+        </div>
+        `
+    },"");
+    document.body.innerHTML += markup;
+};
+
+
+// Second Step
+// Add search functionality! Add an input at the top of the page and a button. When you click the button, show all related definitions (use whatever the user typed in to show relevant results).
+
+//hide all items
+//show items related to search - tags, definition, term
+
+var searchInput = document.querySelector("#text");
+var submitButton = document.querySelector("#submitButton");
+var searchTerm = searchInput.value;
+
+function searchFunction (searchTerm) {
+  var searchTerm = searchInput.value;
+  var relevantItems = glossary.filter(function(item) {
+    return ( 
+    item.term === searchTerm ||
+    item.definition.includes(searchTerm) || 
+    item.class == searchTerm)
+  });
+  var relevantItemsMarkup = relevantItems.reduce(function(currentItem, item){
     var allTags = item.tags;
-    var tagMarkup = allTags.reduce(function(runningTags,tag){
-      return runningTags + `# ${tag}`
-    },'');
-    return runningTotal + `
-      <div class="glossary-item">
-        <h4>${item.term}</h4>
-        <p class="class">Class: ${item.class}<p>
-        <p class="definition">Definition: ${item.definition}<p>
+    var tagMarkup = allTags.reduce(function(currentHTML, tag) {
+        return currentHTML + `#${tag} `
+    },"");
+    return currentItem + `
+      <div class="item">
+        <h2>${item.term}</h2>
+        <h4>Class ${item.class}</h4>
+        <p>${item.definition}</p>
         <p class="tags">${tagMarkup}</p>
       </div>
     `
-  },'');
-  document.body.innerHTML += glossaryMarkup;
+  },"");
+  document.body.innerHTML += relevantItemsMarkup;
 };
 
-function isTermReturned(item) {
-  var searchInputValue = document.querySelector("input").value;
-  return (  
-    item.term === searchInputValue ||
-    item.class === searchInputValue ||
-    item.class === "class "+ searchInputValue ||
-    item.definition.includes(searchInputValue)
-  )
+if (searchTerm !== "") {
+  submitButton.addEventListener("click",render);
+} else {
+  submitButton.addEventListener("click",searchFunction);
 };
 
+// Bonus
+// Make this happen whenever the user presses a key!
 
-// function render() {
-//   var glossaryMarkup = glossary.reduce(function(runningTotal,item) {
-//     var allTags = item.tags;
-//     var tagMarkup = allTags.reduce(function(runningTags,tag){
-//       return runningTags + `# ${tag}`
-//     },'');
-//     return runningTotal + `
-//       <div class="glossary-item">
-//         <h4>${item.term}</h4>
-//         <p class="class">Class: ${item.class}<p>
-//         <p class="definition">Definition: ${item.definition}<p>
-//         <p class="tags">${tagMarkup}</p>
-//       </div>
-//     `
-//   },'');
-//   document.body.innerHTML += glossaryMarkup;
-// };
+// Third Step
+// Add filter functionality! At the top of the page, add a dropdown menu with all of the class names. When the user selects one of those classes, show all of the terms from that particular class.
 
-submitButton.addEventListener("click",search);
+document.addEventListener('DOMContentLoaded',function() {
+  document.querySelector('select[name="filterDropdown"]').onchange=filterFunction;
+},false);
 
-// // Bonus
-// // Make this happen whenever the user presses a key!
+function filterFunction(event) {
+  // You can use “this” to refer to the selected element.
+  if(!event.target.value) {console.log('Filter empty');}
+  else {
+    var selected = event.target.value;
+    var filterItems = glossary.filter(function(item) {
+      return item.class == selected;
+    });
+    var filterItemsMarkup = filterItems.reduce(function(currentItem, item){
+      var allTags = item.tags;
+      var tagMarkup = allTags.reduce(function(currentHTML, tag) {
+        return currentHTML + `#${tag} `
+      },"");
+        return currentItem + `
+          <div class="item">
+            <h2>${item.term}</h2>
+            <h4>Class ${item.class}</h4>
+            <p>${item.definition}</p>
+            <p class="tags">${tagMarkup}</p>
+          </div>
+          `
+      },"");
+    document.body.innerHTML += filterItemsMarkup;
+  };
+}
 
-// // Third Step
-// // Add filter functionality! At the top of the page, add a dropdown menu with all of the class names. When the user selects one of those classes, show all of the terms from that particular class.
-
-// // Bonus
-// // Make the search and filter functionality work together!
+// var relevantItems = glossary.filter(function(item) {
+//   return item.term === searchTerm;
+// });
 
 
+// Bonus
+// Make the search and filter functionality work together!
 
+// Fourth Step
+// Add tag functionality! At the top of the page, have checkboxes that have the tags stored in them. When the user clicks the tags, show all relevant terms!
 
-// render();
-// // Fourth Step
-// // Add tag functionality! At the top of the page, have checkboxes that have the tags stored in them. When the user clicks the tags, show all relevant terms!
+// Bonus
+// Make the search, filter and tag functionality work together!
 
-// // Bonus
-// // Make the search, filter and tag functionality work together!
-
-// // Tips
-// // Use interpolation as much as you can
-// // Try and reuse as much functionality as you can
-// // Array methods are going to come in very handy:
-// // forEach
-// // filter
-// // map
-// // reduce
+// Tips
+// Use interpolation as much as you can
+// Try and reuse as much functionality as you can
+// Array methods are going to come in very handy:
+// forEach
+// filter
+// map
+// reduce
